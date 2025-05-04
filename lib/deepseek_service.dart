@@ -1,16 +1,16 @@
 import 'dart:developer';
 
+import 'package:deepseek_service/ai_response/ai_response.dart';
 import 'package:deepseek_service/enums/deepseek_model.dart';
 import 'package:deepseek_service/enums/max_token.dart';
-import 'package:deepseek_service/ai_response/ai_response.dart';
 import 'package:deepseek_service/networking/api_error/api_error_handler.dart';
 import 'package:deepseek_service/networking/api_response/api_response.dart';
 
 import 'enums/assistant_role.dart';
 
+export 'package:deepseek_service/ai_response/ai_response.dart';
 export 'package:deepseek_service/enums/deepseek_model.dart';
 export 'package:deepseek_service/enums/max_token.dart';
-export 'package:deepseek_service/ai_response/ai_response.dart';
 export 'package:deepseek_service/networking/api_error/api_error_handler.dart';
 export 'package:deepseek_service/networking/api_response/api_response.dart';
 
@@ -36,7 +36,7 @@ class DeepSeekService {
   /// - [temperature]: The temperature to use for the request. Defaults to 0.3.
   /// Lower values (0.1 - 0.3) → More focused, predictable, and factual responses.
   /// Higher values (0.7 - 1.0) → More creative, diverse, and random responses.
-  Future<ApiResponse<AiResponse>> sendRequest(String prompt,
+  Future<ApiResponse<AiResponse>> askQuestion(String prompt,
       {AssistantRole role = AssistantRole.medicalExpert,
       DeepSeekModel? model,
       MaxTokens? maxTokens,
@@ -51,10 +51,7 @@ class DeepSeekService {
         "max_tokens": maxTokens?.value ?? _determineMaxTokens(prompt).value,
         "temperature": temperature,
       };
-      Response response = await _dio.post(
-        apiUrl,
-        data: data
-      );
+      Response response = await _dio.post(apiUrl, data: data);
 
       if (response.statusCode != 200) {
         log("Error on request : ${response.data}");
@@ -92,7 +89,7 @@ class DeepSeekService {
         "Check the following information and extract the main medical condition, key points, and critical data:\n$text";
 
     // Send the request using the constructed or provided prompt
-    return sendRequest(prompt, role: role, model: model, maxTokens: maxTokens);
+    return askQuestion(prompt, role: role, model: model, maxTokens: maxTokens);
   }
 
   /// Translate medical data
@@ -115,7 +112,7 @@ class DeepSeekService {
       DeepSeekModel? model,
       MaxTokens? maxTokens}) async {
     prompt ??= "Translate the following to $targetLanguage. Output only in $targetLanguage:\n$text";
-    return sendRequest(prompt, role: role, model: model, maxTokens: maxTokens);
+    return askQuestion(prompt, role: role, model: model, maxTokens: maxTokens);
   }
 
   /// Summarize medical data
@@ -139,7 +136,7 @@ class DeepSeekService {
     if (prompt == null && text == null) throw Exception("You must provide either prompt or text");
 
     prompt ??= "Summarize this medical information in bullet points:\n$text";
-    return sendRequest("\n$text", role: role, model: model, maxTokens: maxTokens);
+    return askQuestion("\n$text", role: role, model: model, maxTokens: maxTokens);
   }
 
   /// Simplify medical data for normal users
@@ -154,7 +151,7 @@ class DeepSeekService {
   /// Returns a [Future<ApiResponse<DeepSeekResponse>>] that completes with an [ApiResponse] containing a [AiResponse].
   Future<ApiResponse<AiResponse>> simplifyMedicalData(String text,
       {AssistantRole role = AssistantRole.medicalExpert, MaxTokens? maxTokens, DeepSeekModel? model}) async {
-    return sendRequest("Simplify this medical information for normal user:\n$text",
+    return askQuestion("Simplify this medical information for normal user:\n$text",
         role: role, model: model, maxTokens: maxTokens);
   }
 
@@ -165,7 +162,7 @@ class DeepSeekService {
     if (tokenCount < 512) return MaxTokens.short;
     if (tokenCount < 1024) return MaxTokens.medium;
     if (tokenCount < 2048) return MaxTokens.long;
-    if(tokenCount< 4096) return MaxTokens.extreamFull;
+    if (tokenCount < 4096) return MaxTokens.extreamFull;
     return MaxTokens.extended;
   }
 
