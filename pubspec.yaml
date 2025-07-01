@@ -9,9 +9,9 @@ environment:
 dependencies:
   # path: ^1.8.0
   dio: ^5.8.0+1
-  json_annotation: ^4.9.0
-  freezed: ^3.0.6
-  freezed_annotation: ^3.0.6
+  json_annotation: any
+  freezed: any
+  freezed_annotation: any
 
 dev_dependencies:
   lints: ^5.0.0
