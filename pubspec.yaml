@@ -1,6 +1,6 @@
 name: deepseek_service
 description: A dart package for GPT Ai medical API integration.
-version: 1.0.0+8
+version: 1.0.1+9
 
 environment:
   sdk: ^3.6.0
